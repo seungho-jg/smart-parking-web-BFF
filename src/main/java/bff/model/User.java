@@ -2,15 +2,17 @@ package bff.model;
 
 public class User {
     private final int id;
-    private final String username;
+    private final String login_id;
     private final String password;
-    private final String nickname;
+    private final String name;
+    private final String vehicle_number;
 
-    public User(int id, String username, String password, String nickname) {
+    public User(int id, String login_id, String password, String name, String vehicle_number) {
         this.id = id;
-        this.username = username;
+        this.login_id = login_id;
         this.password = password;
-        this.nickname = nickname;
+        this.name = name;
+        this.vehicle_number = vehicle_number;
     }
 
     public int getId() {
@@ -18,7 +20,7 @@ public class User {
     }
 
     public String getUsername() {
-        return this.username;
+        return this.login_id;
     }
 
     public String getPassword() {
@@ -26,6 +28,8 @@ public class User {
     }
 
     public String getNickname() {
-        return this.nickname;
+        return this.name;
     }
+
+    public String getVehicle_number() { return this.vehicle_number;}
 }
