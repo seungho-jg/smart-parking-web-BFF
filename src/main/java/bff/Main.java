@@ -11,14 +11,21 @@ import bff.handlers.*;
 
 public class Main {
     static final int PORT = 8080;
+    static final String STATIC_DIR = "src/main/resources/static";
 
     public static void main(String[] args) throws IOException {
         // 공용 인스턴스
         SessionManager sessionManager = new SessionManager();
 
-        // Router 초기화 & 핸들러 등록
+        // Router 초기화 & API 핸들러만 등록
         Router router = new Router();
-        router.register("/", new HomeHandler(sessionManager));
+        //router.register("/api/login", new LoginHandler(userDao, sessionManager));
+        //router.register("/api/register", new RegisterHandler(userDao));
+        //router.register("/api/logout", new LogoutHandler(sessionManager));
+        //router.register("/api/test", new TestHandler(sessionManager));
+
+        // 정적 파일 핸들러
+        SimpleStaticHandler staticHandler = new SimpleStaticHandler(STATIC_DIR);
 
         // ServerSocket 생성
         ServerSocket serverSocket = null;
@@ -34,7 +41,7 @@ public class Main {
                 Socket clientSocket = serverSocket.accept(); //blocking 상태 -> 연결 수락: TCP 3-way handshake
                 executor.submit(()->{
                     try {
-                        new RequestHandler(clientSocket, router).handle(); // 이제부터 소켓을 통해 getInputStream()/getOutputStream()으로 데이터 송수신이 가능
+                        new SimpleRequestHandler(clientSocket, router, staticHandler).handle();
                     } catch (IOException e) {
                         System.out.println(e.getMessage());
                     }

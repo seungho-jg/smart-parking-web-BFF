@@ -53,4 +53,12 @@ public class HttpUtils {
         }
         return headers;
     }
+    public static void sendJsonResponse(java.io.BufferedWriter out, int statusCode, String json) throws IOException {
+        out.write("HTTP/1.1 " + statusCode + " OK\r\n");
+        out.write("Content-Type: application/json; charset=utf-8\r\n");
+        out.write("Content-Length: " + json.getBytes("UTF-8").length + "\r\n");
+        out.write("Access-Control-Allow-Origin: *\r\n");
+        out.write("\r\n");
+        out.write(json);
+    }
 }
