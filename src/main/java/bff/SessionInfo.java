@@ -3,18 +3,18 @@ package bff;
 import java.time.Instant;
 
 public class SessionInfo {
-    private final int id;
-    private final String nickname;
+    private final String id;
+    private final String name;
     private final long createAt;
     private boolean disabled = false;
 
-    public SessionInfo(int id, String nickname) {
+    public SessionInfo(String id, String name) {
         this.id = id;
         this.createAt = Instant.now().toEpochMilli();
-        this.nickname = nickname;
+        this.name = name;
     }
-    public String getNickname() {
-        return this.nickname;
+    public String getName() {
+        return this.name;
     }
     public long getCreateAt() {
         return this.createAt;

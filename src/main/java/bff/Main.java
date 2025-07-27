@@ -19,7 +19,7 @@ public class Main {
 
         // Router 초기화 & API 핸들러만 등록
         Router router = new Router();
-        //router.register("/api/login", new LoginHandler(userDao, sessionManager));
+        router.register("/api/auth/login", new ApiLoginHandler(sessionManager));
         //router.register("/api/register", new RegisterHandler(userDao));
         //router.register("/api/logout", new LogoutHandler(sessionManager));
         //router.register("/api/test", new TestHandler(sessionManager));

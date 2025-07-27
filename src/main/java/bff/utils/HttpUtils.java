@@ -53,12 +53,61 @@ public class HttpUtils {
         }
         return headers;
     }
-    public static void sendJsonResponse(java.io.BufferedWriter out, int statusCode, String json) throws IOException {
+    public static void sendJsonResponse(BufferedWriter out, int statusCode, Map<String, Object> data) throws IOException {
+        String json = mapToJson(data);
+
         out.write("HTTP/1.1 " + statusCode + " OK\r\n");
         out.write("Content-Type: application/json; charset=utf-8\r\n");
         out.write("Content-Length: " + json.getBytes("UTF-8").length + "\r\n");
         out.write("Access-Control-Allow-Origin: *\r\n");
+        out.write("Access-Control-Allow-Methods: GET, POST, PUT, DELETE\r\n");
+        out.write("Access-Control-Allow-Headers: Content-Type, Authorization\r\n");
         out.write("\r\n");
         out.write(json);
+    }
+
+    public static void sendJsonResponse(BufferedWriter out, int statusCode, Map<String, Object> data, String sessionId) throws IOException {
+        String json = mapToJson(data);
+
+        out.write("HTTP/1.1 " + statusCode + " OK\r\n");
+        out.write("Set-Cookie: SESSIONID=" + sessionId + "; HttpOnly; Path=/\r\n");
+        out.write("Content-Type: application/json; charset=utf-8\r\n");
+        out.write("Content-Length: " + json.getBytes("UTF-8").length + "\r\n");
+        out.write("Access-Control-Allow-Origin: *\r\n");
+        out.write("Access-Control-Allow-Methods: GET, POST, PUT, DELETE\r\n");
+        out.write("Access-Control-Allow-Headers: Content-Type, Authorization\r\n");
+        out.write("\r\n");
+        out.write(json);
+    }
+    public static void sendJsonError(BufferedWriter out, int statusCode, String message) throws IOException {
+        Map<String, Object> error = new HashMap<>();
+        error.put("success", false);
+        error.put("message", message);
+
+        sendJsonResponse(out, statusCode, error);
+    }
+    public static String mapToJson(Map<String, Object> map) {
+        StringBuilder json = new StringBuilder("{");
+        boolean first = true;
+
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (!first) json.append(",");
+            json.append("\"").append(entry.getKey()).append("\":");
+
+            Object value = entry.getValue();
+            if (value instanceof String) {
+                json.append("\"").append(value).append("\"");
+            } else if (value instanceof Boolean) {
+                json.append(value.toString());
+            } else if (value instanceof Map) {
+                json.append(mapToJson((Map<String, Object>) value));
+            } else {
+                json.append("\"").append(value.toString()).append("\"");
+            }
+            first = false;
+        }
+
+        json.append("}");
+        return json.toString();
     }
 }
