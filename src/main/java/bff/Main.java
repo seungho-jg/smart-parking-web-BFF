@@ -22,7 +22,7 @@ public class Main {
         router.register("/api/auth/login", new ApiLoginHandler(sessionManager));
         //router.register("/api/register", new RegisterHandler(userDao));
         //router.register("/api/logout", new LogoutHandler(sessionManager));
-        //router.register("/api/test", new TestHandler(sessionManager));
+        router.register("/api/parking-spaces", new ApiParkingSpacesHandler(sessionManager));
 
         // 정적 파일 핸들러
         SimpleStaticHandler staticHandler = new SimpleStaticHandler(STATIC_DIR);

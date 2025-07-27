@@ -101,6 +101,8 @@ public class HttpUtils {
                 json.append(value.toString());
             } else if (value instanceof Map) {
                 json.append(mapToJson((Map<String, Object>) value));
+            } else if (value instanceof java.util.List) {
+                json.append(listToJson((java.util.List<?>) value));
             } else {
                 json.append("\"").append(value.toString()).append("\"");
             }
@@ -108,6 +110,26 @@ public class HttpUtils {
         }
 
         json.append("}");
+        System.out.println(json);
+        return json.toString();
+    }
+    private static String listToJson(java.util.List<?> list) {
+        if (list == null || list.isEmpty()) {
+            return "[]";
+        }
+
+        StringBuilder json = new StringBuilder("[");
+        boolean first = true;
+
+        for (Object item : list) {
+            if (!first) {
+                json.append(",");
+            }
+            json.append(mapToJson((Map<String, Object>) item));
+            first = false;
+        }
+
+        json.append("]");
         return json.toString();
     }
 }
