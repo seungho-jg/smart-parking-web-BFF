@@ -51,6 +51,48 @@ public class RaspberryClient {
         }
     }
 
+    public boolean reserveParkingSpace(int spaceId) throws IOException {
+        if (!connected) {
+            throw new IOException("라즈베리파이에 연결되지 않음");
+        }
+
+        try {
+            out.write("RESERVE:" + spaceId + "\n");
+            out.flush();
+            System.out.println("RESERVE:" + spaceId + " 명령 전송완료");
+
+            String response = in.readLine();
+            System.out.println("받은 응답: " + response);
+
+            return "OK".equals(response);
+        } catch (IOException e) {
+            connected = false;
+            System.out.println("예약 통신 오류: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    public boolean cancelParkingSpace(int spaceId) throws IOException {
+        if (!connected) {
+            throw new IOException("라즈베리파이에 연결되지 않음");
+        }
+
+        try {
+            out.write("CANCEL:" + spaceId + "\n");
+            out.flush();
+            System.out.println("CANCEL:" + spaceId + " 명령 전송완료");
+
+            String response = in.readLine();
+            System.out.println("받은 응답: " + response);
+
+            return "OK".equals(response);
+        } catch (IOException e) {
+            connected = false;
+            System.out.println("취소 통신 오류: " + e.getMessage());
+            throw e;
+        }
+    }
+
     public void disconnect() {
         try {
             if (socket != null && !socket.isClosed()) {

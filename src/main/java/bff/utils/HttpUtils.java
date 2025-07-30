@@ -54,37 +54,69 @@ public class HttpUtils {
         return headers;
     }
     public static void sendJsonResponse(BufferedWriter out, int statusCode, Map<String, Object> data) throws IOException {
-        String json = mapToJson(data);
-
-        out.write("HTTP/1.1 " + statusCode + " OK\r\n");
-        out.write("Content-Type: application/json; charset=utf-8\r\n");
-        out.write("Content-Length: " + json.getBytes("UTF-8").length + "\r\n");
-        out.write("Access-Control-Allow-Origin: *\r\n");
-        out.write("Access-Control-Allow-Methods: GET, POST, PUT, DELETE\r\n");
-        out.write("Access-Control-Allow-Headers: Content-Type, Authorization\r\n");
-        out.write("\r\n");
-        out.write(json);
+        sendJsonResponse(out, statusCode, data, null, null);
     }
 
     public static void sendJsonResponse(BufferedWriter out, int statusCode, Map<String, Object> data, String sessionId) throws IOException {
+        sendJsonResponse(out, statusCode, data, sessionId, null);
+    }
+    
+    public static void sendJsonResponse(BufferedWriter out, int statusCode, Map<String, Object> data, String sessionId, Map<String, String> headers) throws IOException {
         String json = mapToJson(data);
+        String origin = getOriginFromHeaders(headers);
 
         out.write("HTTP/1.1 " + statusCode + " OK\r\n");
-        out.write("Set-Cookie: SESSIONID=" + sessionId + "; HttpOnly; Path=/\r\n");
+        if (sessionId != null) {
+            out.write("Set-Cookie: SESSIONID=" + sessionId + "; HttpOnly; Path=/; SameSite=Lax\r\n");
+        }
         out.write("Content-Type: application/json; charset=utf-8\r\n");
         out.write("Content-Length: " + json.getBytes("UTF-8").length + "\r\n");
-        out.write("Access-Control-Allow-Origin: *\r\n");
+        out.write("Access-Control-Allow-Origin: " + origin + "\r\n");
+        out.write("Access-Control-Allow-Credentials: true\r\n");
         out.write("Access-Control-Allow-Methods: GET, POST, PUT, DELETE\r\n");
         out.write("Access-Control-Allow-Headers: Content-Type, Authorization\r\n");
         out.write("\r\n");
         out.write(json);
     }
     public static void sendJsonError(BufferedWriter out, int statusCode, String message) throws IOException {
+        sendJsonError(out, statusCode, message, null);
+    }
+    
+    public static void sendJsonError(BufferedWriter out, int statusCode, String message, Map<String, String> headers) throws IOException {
         Map<String, Object> error = new HashMap<>();
         error.put("success", false);
         error.put("message", message);
 
-        sendJsonResponse(out, statusCode, error);
+        sendJsonResponse(out, statusCode, error, null, headers);
+    }
+    
+    private static String getOriginFromHeaders(Map<String, String> headers) {
+        if (headers == null) {
+            return "*";
+        }
+        
+        String origin = headers.get("origin");
+        if (origin != null) {
+            return origin;
+        }
+        
+        String referer = headers.get("referer");
+        if (referer != null) {
+            try {
+                if (referer.startsWith("http://") || referer.startsWith("https://")) {
+                    int endIndex = referer.indexOf("/", referer.indexOf("://") + 3);
+                    if (endIndex > 0) {
+                        return referer.substring(0, endIndex);
+                    } else {
+                        return referer;
+                    }
+                }
+            } catch (Exception e) {
+                // 파싱 실패 시 모든 오리진 허용
+            }
+        }
+        
+        return "*";
     }
     public static String mapToJson(Map<String, Object> map) {
         StringBuilder json = new StringBuilder("{");
@@ -110,7 +142,6 @@ public class HttpUtils {
         }
 
         json.append("}");
-        System.out.println(json);
         return json.toString();
     }
     private static String listToJson(java.util.List<?> list) {

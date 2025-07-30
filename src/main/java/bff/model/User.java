@@ -1,35 +1,66 @@
 package bff.model;
 
 public class User {
-    private final int id;
-    private final String login_id;
-    private final String password;
-    private final String name;
-    private final String vehicle_number;
+    private Long id;
+    private String loginId;
+    private String password;
+    private String name;
+    private String vehicleNumber;
 
-    public User(int id, String login_id, String password, String name, String vehicle_number) {
-        this.id = id;
-        this.login_id = login_id;
+    public User() {}
+
+    public User(String loginId, String password, String name, String vehicleNumber) {
+        this.loginId = loginId;
         this.password = password;
         this.name = name;
-        this.vehicle_number = vehicle_number;
+        this.vehicleNumber = vehicleNumber;
     }
 
-    public int getId() {
-        return this.id;
+    public User(Long id, String loginId, String password, String name, String vehicleNumber) {
+        this.id = id;
+        this.loginId = loginId;
+        this.password = password;
+        this.name = name;
+        this.vehicleNumber = vehicleNumber;
     }
 
-    public String getUsername() {
-        return this.login_id;
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLoginId() {
+        return loginId;
+    }
+
+    public void setLoginId(String loginId) {
+        this.loginId = loginId;
     }
 
     public String getPassword() {
-        return this.password;
+        return password;
     }
 
-    public String getNickname() {
-        return this.name;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public String getVehicle_number() { return this.vehicle_number;}
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
 }

@@ -7,8 +7,8 @@ import java.util.Map;
 
 
 public class SessionManager implements SessionManagerInterface {
-    // 세션 만료 시간 (2분)
-    private static final long SESSION_OVER_MILLITS = 2 * 60 * 1000;
+    // 세션 만료 시간 (60분)
+    private static final long SESSION_OVER_MILLITS = 60 * 60 * 1000;
     private final Map<String, SessionInfo> sessions = new HashMap<>();
 
 
@@ -58,5 +58,33 @@ public class SessionManager implements SessionManagerInterface {
                 sessions.remove(key);
             }
         });
+    }
+    
+    public synchronized boolean isValid(String sessionId) {
+        SessionInfo info = sessions.get(sessionId);
+        System.out.println("=== SessionManager.isValid 디버깅 ===");
+        System.out.println("sessionId: " + sessionId);
+        System.out.println("SessionInfo found: " + info);
+        System.out.println("Total sessions count: " + sessions.size());
+        
+        if (info != null) {
+            boolean expired = info.isExpired(SESSION_OVER_MILLITS);
+            boolean disabled = info.isDisabled();
+            System.out.println("Session expired: " + expired);
+            System.out.println("Session disabled: " + disabled);
+            
+            if (!expired && !disabled) {
+                return true;
+            }
+            if (expired) {
+                sessions.remove(sessionId);
+                System.out.println("Removed expired session");
+            }
+        }
+        return false;
+    }
+    
+    public synchronized SessionInfo get(String sessionId) {
+        return getOne(sessionId);
     }
 }

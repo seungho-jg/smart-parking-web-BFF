@@ -13,11 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ApiParkingSpacesHandler implements Handler {
-    private SessionManager sessionManager;
     private final RaspberryClient raspberryClient;
 
-    public ApiParkingSpacesHandler(SessionManager sessionManager, RaspberryClient raspberryClient){
-        this.sessionManager = sessionManager;
+    public ApiParkingSpacesHandler(RaspberryClient raspberryClient){
         this.raspberryClient = raspberryClient;
     }
 
@@ -39,8 +37,10 @@ public class ApiParkingSpacesHandler implements Handler {
         }
 
         try {
+            Map<String, String> headers = HttpUtils.parseHeaders(in);
+            
             if (!method.equals("GET")) {
-                HttpUtils.sendJsonError(out, 405, "Method not allowed");
+                HttpUtils.sendJsonError(out, 405, "Method not allowed", headers);
                 return;
             }
 
@@ -51,16 +51,17 @@ public class ApiParkingSpacesHandler implements Handler {
             response.put("success", true);
             response.put("message", "Login successful");
             response.put("spaces", spaces);
-            System.out.println(spaces);
+//            System.out.println(spaces);
 
-            HttpUtils.sendJsonResponse(out, 200, response);
+            HttpUtils.sendJsonResponse(out, 200, response, null, headers);
         } catch (Exception e) {
+            Map<String, String> headers = HttpUtils.parseHeaders(in);
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "라즈베리파이 연결 오류, 기본 데이터 반환");
             response.put("spaces", spaces);
 
-            HttpUtils.sendJsonResponse(out, 200, response);
+            HttpUtils.sendJsonResponse(out, 200, response, null, headers);
         } finally {
             out.flush();
         }
@@ -97,12 +98,12 @@ public class ApiParkingSpacesHandler implements Handler {
 
     private String convertStatusToString(char statusCode) {
         return switch (statusCode) {
-            case '0' -> "available";
-            case '1' -> "reserved";
-            case '2' -> "occupied";
+            case '0' -> "AVAILABLE";
+            case '1' -> "RESERVED";
+            case '2' -> "OCCUPIED";
             default -> {
                 System.err.println("알 수 없는 상태 코드: " + statusCode);
-                yield "unknown";
+                yield "UNKNOWN";
             }
         };
     }

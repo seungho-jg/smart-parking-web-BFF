@@ -13,6 +13,11 @@ public class SessionInfo {
         this.createAt = Instant.now().toEpochMilli();
         this.name = name;
     }
+    
+    public String getUserId() {
+        return this.id;
+    }
+    
     public String getName() {
         return this.name;
     }

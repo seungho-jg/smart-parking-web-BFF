@@ -9,12 +9,26 @@ import java.util.concurrent.Executors;
 
 import bff.handlers.*;
 import bff.socket.RaspberryClient;
+import bff.dao.ParkingSpaceDAO;
 
 public class Main {
     static final int PORT = 8080;
     static final String STATIC_DIR = "src/main/resources/static";
 
     public static void main(String[] args) throws IOException {
+        // 데이터베이스 초기화
+        try {
+            if (bff.database.DatabaseConnection.isDbAvailable()) {
+                ParkingSpaceDAO parkingSpaceDAO = new ParkingSpaceDAO();
+                parkingSpaceDAO.initializeParkingSpaces();
+                System.out.println("데이터베이스 초기화 완료");
+            } else {
+                System.out.println("데이터베이스 연결 없음 - DB 기능 비활성화");
+            }
+        } catch (Exception e) {
+            System.err.println("데이터베이스 초기화 실패: " + e.getMessage());
+        }
+
         // 공용 인스턴스
         SessionManager sessionManager = new SessionManager();
 
@@ -34,9 +48,10 @@ public class Main {
         // Router 초기화 & API 핸들러만 등록
         Router router = new Router();
         router.register("/api/auth/login", new ApiLoginHandler(sessionManager));
-        //router.register("/api/register", new RegisterHandler(userDao));
-        //router.register("/api/logout", new LogoutHandler(sessionManager));
-        router.register("/api/parking-spaces", new ApiParkingSpacesHandler(sessionManager, raspberryConnect));
+        router.register("/api/auth/signup", new ApiRegisterHandler());
+        router.register("/api/parking-spaces", new ApiParkingSpacesHandler(raspberryConnect));
+        router.register("/api/reservations", new ApiReservationHandler(sessionManager, raspberryConnect));
+        router.register("/api/my/parking-history", new ApiParkingRecordsHandler(sessionManager));
 
         // 정적 파일 핸들러
         SimpleStaticHandler staticHandler = new SimpleStaticHandler(STATIC_DIR);
