@@ -1,13 +1,14 @@
 // Main.java
 package bff;
 
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import bff.handlers.*;
+import bff.socket.RaspberryClient;
 
 public class Main {
     static final int PORT = 8080;
@@ -17,12 +18,25 @@ public class Main {
         // 공용 인스턴스
         SessionManager sessionManager = new SessionManager();
 
+        // raspberryPi tcp 연결
+        RaspberryClient raspberryConnect = new RaspberryClient();
+
+        try {
+            raspberryConnect.raspberryConnect();
+            System.out.println("라즈베리파이 연결 성공!");
+
+        } catch (IOException e) {
+            System.err.println("라즈베리파이 연결 실패: " + e.getMessage());
+            System.out.println("기본 모드로 서버 시작 (라즈베리파이 없이 동작)");
+        }
+
+
         // Router 초기화 & API 핸들러만 등록
         Router router = new Router();
         router.register("/api/auth/login", new ApiLoginHandler(sessionManager));
         //router.register("/api/register", new RegisterHandler(userDao));
         //router.register("/api/logout", new LogoutHandler(sessionManager));
-        router.register("/api/parking-spaces", new ApiParkingSpacesHandler(sessionManager));
+        router.register("/api/parking-spaces", new ApiParkingSpacesHandler(sessionManager, raspberryConnect));
 
         // 정적 파일 핸들러
         SimpleStaticHandler staticHandler = new SimpleStaticHandler(STATIC_DIR);
